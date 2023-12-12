@@ -6,7 +6,7 @@
 /*   By: tchareto <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/08 17:23:25 by tchareto          #+#    #+#             */
-/*   Updated: 2023/12/12 17:16:06 by tchareto         ###   ########.fr       */
+/*   Updated: 2023/12/12 17:16:20 by tchareto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <string.h>
@@ -120,12 +120,14 @@ char	*get_next_line(int fd)
 
 	ret = 1;
 
-	if (fd < 0 || !line || BUFFER_SIZE <= 0)
+	if (fd < 0 || !str|| BUFFER_SIZE <= 0)
 		return (NULL);
+	line = NULL;
 	buffer = malloc(BUFFER_SIZE);
-	while (ret > 0)
+	if (!buffer)
+		return(NULL);
+	while ((ret = read(fd, buffer, BUFFER_SIZE))> 0)
 	{
-		ret = read(fd, buffer, BUFFER_SIZE);
 		buffer[ret] = 0;
 		temp = str;
 		str = ft_strjoin(temp, buffer);
@@ -133,6 +135,8 @@ char	*get_next_line(int fd)
 		if (ft_strchr(str, '\n'))
 			break;
 	}
+	if (ret == -1)
+		return (NULL);
 	line = ft_select (str);
 	temp =str;
 	str = ft_select2(temp);
