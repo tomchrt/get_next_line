@@ -6,39 +6,18 @@
 /*   By: tchareto <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/08 17:23:25 by tchareto          #+#    #+#             */
-/*   Updated: 2024/01/10 19:37:37 by tchareto         ###   ########.fr       */
+/*   Updated: 2024/01/16 19:35:01 by tchareto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <stddef.h>
-#include "fcntl.h"
 #include "get_next_line.h"
 #ifndef BUFFER_SIZE
-#define BUFFER_SIZE 10
+#define BUFFER_SIZE 1024
 #endif
-char	*ft_strdup(const char *src)
-{
-	size_t	i;
-	char	*str;
-
-	i = 0;
-	while (src[i] != '\0')
-		i++;
-	//str = malloc(sizeof (char) * i + 1);
-	if (!str)
-		return (NULL);
-	i = 0;
-	while (src[i] != '\0')
-	{
-		str[i] = src[i];
-		i++;
-	}
-	str[i] = '\0';
-	return (str);
-}
-
 size_t	ft_strlen(const char *s)
 {
 	size_t	i;
@@ -59,12 +38,11 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	j = 0;
 	if (!s1 && !s2)
 		return (NULL);
-
 	while (s1 && s1[i] != '\0')
 		i++;
 	while (s2 && s2[j] != '\0')
 		j++;
-	s3 = malloc(sizeof(char) * (i + j + 2));
+	s3 = malloc(sizeof(char) * (i + j +1));
 	if (!s3)
 		return (NULL);
 	i = 0;
@@ -76,18 +54,18 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	return (s3);
 }
 
-char	*ft_strchr(const char *str, int c)
+char	*ft_strchr(const char *str1, int c)
 {
 	unsigned char	a;
 
 	a = (unsigned char)c;
-	while (*str != '\0' && *str != a)
+	while (*str1 != '\0' && *str1 != a)
 	{
-		str++;
+		str1++;
 	}
-	if (*str == a)
+	if (*str1 == a)
 	{
-		return ((char *)str);
+		return ((char *)str1);
 	}
 	else
 	{
@@ -95,53 +73,75 @@ char	*ft_strchr(const char *str, int c)
 	}
 }
 
-char	*ft_select(char *buffer)
+char	*ft_select(char *buffer1)
 {
-	if (!buffer)
-		return (NULL);
 	int		i;
 	char	*dest;
 
 	i = 0;
-	while (buffer && buffer[i] && buffer[i] != '\n')
+	if (!buffer1)
+		return (NULL);
+	while (buffer1 && buffer1[i] && buffer1[i] != '\n')
 		i++;
-	if (buffer[i] == '\n')
+	if (buffer1[i] == '\n')
 		i++;
-	//dest = malloc(i + 1);
+	dest = malloc(sizeof(char) * (i + 1));
 	if (!dest)
 		return (NULL);
 	i = 0;
-	while (buffer && buffer[i] && buffer[i] != '\n')
+	while (buffer1 && buffer1[i] && buffer1[i] != '\n')
 	{
-		dest[i] = buffer[i];
+		dest[i] = buffer1[i];
 		i++;
 	}
-	if (buffer[i] == '\n')
+	if (buffer1[i] == '\n')
 		dest[i++] = '\n';
 	dest[i] = '\0';
 	return (dest);
 }
 
-char *ft_select2(char *str, size_t k, ssize_t ret)
+char	*ft_select2(char *str1, size_t k, ssize_t ret)
 {
-	int j;
-	char *dest;
+	int		j;
+	char	*dest;
 
-	if (!str)
+	if (!str1)
 		return (NULL);
-	dest = malloc(sizeof(char) * (ret - k + 1));
+	dest = malloc(sizeof(char) * (ft_strlen(str1) - k + 1));
 	if (!dest)
 		return (NULL);
 	j = 0;
-	while (str && str[k])
-		dest[j++] = str[k++];
+	while (str1[k] && ret != 0)
+	{
+		dest[j++] = str1[k++];
+	}
 	dest[j] = '\0';
-	//free(str);
+	free(str1);
 	return (dest);
 }
 
+char	*ft_strdup(const char *src)
+{
+	size_t	i;
+	char	*str1;
 
-ssize_t ft_ret_value(int fd, char *buf)
+	i = 0;
+	while (src[i] != '\0')
+		i++;
+	str1 = malloc(sizeof (char) * (i + 1));
+	if (!str1)
+		return (NULL);
+	i = 0;
+	while (src[i] != '\0')
+	{
+		str1[i] = src[i];
+		i++;
+	}
+	str1[i] = '\0';
+	return (str1);
+}
+
+ssize_t	ft_ret_value(int fd, char *buf)
 {
 	ssize_t	ret;
 
@@ -151,48 +151,44 @@ ssize_t ft_ret_value(int fd, char *buf)
 	return (ret);
 }
 
-int	ft_check_return(ssize_t ret, char **str)
+int	ft_check_return(ssize_t ret, char **str1)
 {
-	if (ret == 0 && *str && (*str)[0] == 0)
+	if (ret == 0 && *str1 && (*str1)[0] == '\0')
 	{
-		free(*str);
-		*str = NULL;
+		free(*str1);
+		*str1 = NULL;
 		return (0);
 	}
 	return (1);
 }
 
-char	*read_and_join_lines(char **str, int fd, ssize_t *ret)
+char	*read_and_join_lines(char **str1, int fd, ssize_t *ret)
 {
-	static char	buffer[BUFFER_SIZE];
-	char	*temp;
+	static char	buffer[BUFFER_SIZE + 1];
+	char		*temp;
 
 	while (*ret > 0)
 	{
 		*ret = ft_ret_value(fd, buffer);
-		if (*ret == -1)
+		if (*ret == -1 || (*ret == 0 && !str1))
 			return (NULL);
-		if (*ret == 0)
-			break ;
-		temp = ft_strjoin(*str, buffer);
-		//free(*str);
+		temp = ft_strjoin(*str1, buffer);
 		if (!temp)
 			return (NULL);
-		*str = ft_strdup(temp);
+		free(*str1);
+		*str1 = ft_strdup(temp);
 		free(temp);
-		if (ft_strchr(*str, '\n'))
+		if (ft_strchr(*str1, '\n'))
 			break ;
 	}
-	return (*str);
+	return (*str1);
 }
 
 char	*get_next_line(int fd)
 {
 	char		*line;
-	static char	str[BUFFER_SIZE];
-
+	static char	*str = NULL;
 	ssize_t		ret;
-
 
 	line = NULL;
 	ret = 1;
@@ -202,15 +198,16 @@ char	*get_next_line(int fd)
 		return (NULL);
 	line = ft_select(str);
 	str = ft_select2(str, ft_strlen(line), ret);
-	if (ft_check_return(ret, &str) == 0 && (line == NULL || line[0] == '\0'))
+	if (line == NULL)
+			return (NULL);
+	if (ft_check_return(ret, &str) == 0 && (line[0] == '\0'))
 		return (NULL);
-	//free(str);
 	return (line);
 }
 
 int main()
 {
-	int fd = open("2.txt", O_RDONLY);
+	int fd = open("test2.txt", O_RDONLY);
 	if (fd == -1)
 		return (1);
 	char *line;
