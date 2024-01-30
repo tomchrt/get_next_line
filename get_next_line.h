@@ -5,17 +5,30 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: tchareto <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/12/12 15:43:29 by tchareto          #+#    #+#             */
-/*   Updated: 2023/12/12 15:53:09 by tchareto         ###   ########.fr       */
+/*   Created: 2024/01/08 16:09:05 by tchareto          #+#    #+#             */
+/*   Updated: 2024/01/19 18:46:12 by tchareto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
+
 # include <string.h>
 # include <stdlib.h>
 
-char	*ft_strjoin(char const *s1, char const *s2);
-char	*ft_strchr(const char *str, int c);
-size_t	ft_strlen(const char *s);
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 1024
+# endif
+
+typedef struct variables
+{
+	char		*line;
+	ssize_t		line_size;
+	char		c;
+}	t_variables;
+
+char	*append_char_to_line(char *line, char c, ssize_t *size);
+int		is_fd_valid(int fd);
+char	*get_next_line(int fd);
+char	*gnl(int fd);
+
 #endif
